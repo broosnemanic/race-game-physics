@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://bejv4xyikkhlm"]
+
+[ext_resource type="Script" uid="uid://bq028swxktdi0" path="res://scripts/detector_test.gd" id="1_5rtne"]
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_5rtne")
+
+[node name="Camera2D" type="Camera2D" parent="."]

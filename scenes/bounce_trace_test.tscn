@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://co52i28nlv8wc"]
+
+[ext_resource type="Script" uid="uid://ciesf5qhw3u1d" path="res://scripts/bounce_trace_test.gd" id="1_ae6rd"]
+[ext_resource type="Script" uid="uid://efvbaklsq1df" path="res://scripts/bounce_trace.gd" id="2_vavr2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ae6rd"]
+size = Vector2(106, 73)
+
+[node name="BounceTraceTest" type="Node2D"]
+script = ExtResource("1_ae6rd")
+
+[node name="BounceTrace" type="Line2D" parent="."]
+script = ExtResource("2_vavr2")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+position = Vector2(200, 250)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(43, 26.5)
+shape = SubResource("RectangleShape2D_ae6rd")
