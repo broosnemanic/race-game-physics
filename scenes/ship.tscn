@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://baeb4us65g8f3"]
 
 [ext_resource type="Script" uid="uid://bl4x4u20ehwce" path="res://scripts/ship.gd" id="1_2gnfn"]
-[ext_resource type="Texture2D" uid="uid://dm1aksivg3ges" path="res://textures/ship_00.png" id="2_4tobq"]
+[ext_resource type="Texture2D" uid="uid://bsrm530j35jpa" path="res://textures/hoovercraft00.png" id="2_2gnfn"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0wfyh"]
 friction = 0.0
@@ -21,4 +21,4 @@ script = ExtResource("1_2gnfn")
 shape = SubResource("CircleShape2D_sugp2")
 
 [node name="ShipSprite" type="Sprite2D" parent="." groups=["ghost"]]
-texture = ExtResource("2_4tobq")
+texture = ExtResource("2_2gnfn")

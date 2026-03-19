@@ -14,15 +14,7 @@ var point: Vector2
 var is_active: bool		# Should this react to mouse actions?
 
 const ZERO_RADIUS: float = 25.0
-const SQRT2_2: float = 0.5 * sqrt(2.0)
-const OCTANTS: Array[Vector2] = [Vector2(1.0, 0.0),
-								Vector2(SQRT2_2, SQRT2_2),
-								Vector2(0.0, 1.0),
-								Vector2(-SQRT2_2, SQRT2_2),
-								Vector2(-1.0, 0.0),
-								Vector2(-SQRT2_2, -SQRT2_2),
-								Vector2(0.0, -1.0),
-								Vector2(SQRT2_2,  -SQRT2_2)]
+
 
 #
 func _init(a_radius: float, a_color: Color) -> void:
@@ -30,6 +22,7 @@ func _init(a_radius: float, a_color: Color) -> void:
 	color = a_color
 	arrow = Arrow.new()
 	add_child(arrow)
+	arrow.visible = false
 
 
 #
@@ -102,9 +95,9 @@ func octant_from_angle(a_angle: float) -> Vector2:
 	var t_angle: float = 0.0
 	for i_index: int in range(8):
 		if is_between(t_angle - t_PI8, t_angle + t_PI8, a_angle):
-			return OCTANTS[i_index]
+			return Constants.OCTANTS[i_index]
 		t_angle += PI / 4.0
-	return OCTANTS[0]
+	return Constants.OCTANTS[0]
 
 
 #
@@ -121,6 +114,6 @@ func set_radius(a_radius: float) -> void:
 
 
 #
-func _draw() -> void:
-	draw_circle(Vector2.ZERO, radius, color, false, 2.0, true)
-	draw_circle(Vector2.ZERO, 2.0, color, true)
+#func _draw() -> void:
+	#draw_circle(Vector2.ZERO, radius, color, false, 2.0, true)
+	#draw_circle(Vector2.ZERO, 2.0, color, true)

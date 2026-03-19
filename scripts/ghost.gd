@@ -35,22 +35,48 @@ func on_body_entered(_a_body: Node) -> void:
 
 
 #
+#func go(a_is_go: bool) -> void:
+	#if a_is_go:
+		#set_fast_physics(true)
+		#linear_velocity = ship.velocity_saved
+		#get_tree().create_timer(Constants.TURN_DURATION).timeout.connect(go.bind(false))
+	#else:
+		#lifetime_completed.emit(global_position)
+		#freeze = true
+		#set_fast_physics(false)
+		#queue_free()
+#
+#
+##
+#func set_fast_physics(a_is_fast: bool) -> void:
+	#if a_is_fast:
+		#Engine.time_scale = Constants.PHYSICS_SIM_MULTIPLIER as float
+		#Engine.physics_ticks_per_second = Constants.PHYSICS_SIM_MULTIPLIER * Constants.PHYSICS_TICKS_PER_SECOND_DEFAULT
+	#else:
+		#Engine.time_scale = 1.0
+		#Engine.physics_ticks_per_second = Constants.PHYSICS_TICKS_PER_SECOND_DEFAULT
+
+
+
+const FACTOR: float = 10.0
+#
 func go(a_is_go: bool) -> void:
 	if a_is_go:
 		set_fast_physics(true)
-		linear_velocity = ship.velocity_saved
-		get_tree().create_timer(Constants.TURN_DURATION).timeout.connect(go.bind(false))
+		linear_velocity = ship.velocity_saved * FACTOR
+		get_tree().create_timer(Constants.TURN_DURATION / FACTOR).timeout.connect(go.bind(false))
 	else:
-		set_fast_physics(false)
 		lifetime_completed.emit(global_position)
+		freeze = true
+		set_fast_physics(false)
 		queue_free()
 
 
 #
 func set_fast_physics(a_is_fast: bool) -> void:
 	if a_is_fast:
-		Engine.time_scale = Constants.PHYSICS_SIM_MULTIPLIER as float
-		Engine.physics_ticks_per_second = Constants.PHYSICS_SIM_MULTIPLIER * Constants.PHYSICS_TICKS_PER_SECOND_DEFAULT
+		#Engine.time_scale = Constants.PHYSICS_SIM_MULTIPLIER as float
+		Engine.physics_ticks_per_second = floori(FACTOR * Constants.PHYSICS_TICKS_PER_SECOND_DEFAULT as float)
 	else:
 		Engine.time_scale = 1.0
 		Engine.physics_ticks_per_second = Constants.PHYSICS_TICKS_PER_SECOND_DEFAULT

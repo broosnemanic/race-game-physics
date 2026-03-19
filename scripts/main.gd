@@ -10,7 +10,7 @@ var turn_order: Array[int] = []						# List of players in movement order
 var active_player: int								# Player to move
 var current_ghost: Ghost							# To ensure only one exists at a time
 
-const SHIP_COUNT: int = 1
+const SHIP_COUNT: int = 2
 const DOT: Texture2D = preload("uid://bfx53rcnq1uik")
 
 
@@ -32,7 +32,6 @@ func _ready() -> void:
 	setup_borders(t_size)
 	for i_index: int in range(SHIP_COUNT):
 		add_ship(i_index)
-		#ships[i_index].go(true)
 	camera_2d.offset = 0.5 * t_size
 	await get_tree().create_timer(1.0).timeout
 	start_turn()
@@ -43,7 +42,6 @@ func add_ship(a_player: int) -> void:
 	add_child(t_ship)
 	t_ship.player = a_player
 	t_ship.position = start_position(a_player)
-	print_debug(t_ship.position)
 	t_ship.set_frozen(true)
 	ships.append(t_ship)
 	turn_order.append(a_player)
@@ -55,7 +53,8 @@ func add_ship(a_player: int) -> void:
 #
 func start_position(a_player: int) -> Vector2:
 	var t_size: Vector2 = get_viewport_rect().size
-	return 0.5 * t_size + Vector2(200.0 * a_player as float, 0.0)
+	#return 0.5 * t_size + Vector2(200.0 * a_player as float, 0.0)
+	return 0.5 * t_size + Vector2(0.0, 200.0 * a_player as float)
 
 
 #
@@ -68,13 +67,16 @@ func start_turn() -> void:
 		#t_ship.detector.octant_changed.connect(create_ghost.bind(t_ship))
 		t_ship.detector_position_changed.connect(create_ghost.bind(t_ship))
 		t_ship.acc_selected.connect(mark_ship_destination.bind(t_ship))
+		t_ship.acc_selected.connect(shoot_pellet.bind(t_ship))
 		await t_ship.acc_selected
 		t_ship.acc_selected.disconnect(mark_ship_destination)
+		t_ship.acc_selected.disconnect(shoot_pellet)
 		t_ship.detector_position_changed.disconnect(create_ghost)
 		t_ship.show_detector(false)
 		t_ship.set_detector_active(false)
 		if not t_ship.player == turn_order[turn_order.size() - 1]:
 			await get_tree().create_timer(0.5).timeout	# To prevent click being doulbe-counted
+	await get_tree().create_timer(1.0).timeout
 	for i_ship: Ship in ships:
 		i_ship.go(true)
 	await get_tree().create_timer(Constants.TURN_DURATION).timeout
@@ -85,8 +87,27 @@ func start_turn() -> void:
 	start_turn()
 
 
+#
+func show_all_ship_paths() -> void:
+	pass
 
+
+#
+func show_ship_current_path(a_ship: Ship) -> void:
+	a_ship.line.clear_points()
+	a_ship.line.add_point(Vector2.ZERO)
+	current_ghost = Ghost.new(a_ship)
+	current_ghost.bounce_registered.connect(a_ship.add_line_point)
+	current_ghost.lifetime_completed.connect(a_ship.add_line_point)
+	add_child(current_ghost)
+	current_ghost.go(true)
+
+
+#
 func create_ghost(a_ship: Ship) -> void:
+	if current_ghost != null:
+		current_ghost.queue_free()
+		await get_tree().process_frame
 	if current_ghost == null:
 		a_ship.line.clear_points()
 		a_ship.line.add_point(Vector2.ZERO)
@@ -95,6 +116,39 @@ func create_ghost(a_ship: Ship) -> void:
 		current_ghost.lifetime_completed.connect(a_ship.add_line_point)
 		add_child(current_ghost)
 		current_ghost.go(true)
+
+
+# 
+func shoot_pellet(_a_acc: Vector2, a_ship: Ship) -> void:
+	#print("shoot_pellet")
+	var t_ray: RayCast2D = RayCast2D.new()
+	var t_target: Vector2
+	#var t_acc: Vector2 = -1.0 * a_ship.current_acc
+	var t_acc: Vector2 = -1.0 * _a_acc
+	if t_acc != -_a_acc: print_debug("accs do not match")
+	var t_dot: Sprite2D = Sprite2D.new()
+	t_dot.texture = DOT
+	add_child(t_ray)
+	t_ray.global_position = a_ship.global_position
+	t_target = Constants.PELLET_RAY_LENGTH * t_acc.normalized()
+	t_ray.target_position = t_target
+	t_ray.force_raycast_update()
+	if t_ray.is_colliding():
+		var t_hit: Object = t_ray.get_collider()
+		if t_hit != null:
+			if t_hit is Ship:
+				t_hit.set_saved_velocity(t_hit.velocity_saved + t_acc)
+				t_hit.arrow.point_at_position(t_hit.velocity_saved)
+				create_ghost(t_hit)
+			add_child(t_dot)
+			t_dot.global_position = a_ship.global_position
+			var t_tween: Tween = get_tree().create_tween()
+			t_tween.tween_property(t_dot, "global_position", t_ray.get_collision_point(), 0.5)
+			t_tween.finished.connect(t_dot.queue_free)
+	t_ray.queue_free()
+
+
+
 
 
 #
